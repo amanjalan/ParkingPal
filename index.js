@@ -1,6 +1,7 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const bodyParser = require("body-parser");
+const bcrypt = require('bcrypt');
 
 const app = express();
 
@@ -47,12 +48,39 @@ connection.once('open', () => {
         res.render("signup");
     });
 
-
+    // Login Credentials Check
     app.post('/login', (req, res)=>{
         User.find({username: req.body.username}, (err, user) => {
             if (err)
                 handleError(res, err.message, 'Failed to get user');
+            else {
+                bcrypt.compare(req.body.password, user.password_hash, (err, res) => {
+                    if (err)
+                        handleError(res, err.message, 'Passwords dont match');
+                    else
+                        res.status(200).json(user);
+                });
+            }
+        });
+    });
+
+    // SignUp with new User 
+    app.post('/signup', (req, res) => {
+        let user = new User({
+            username: req.body.username,
+            password_hash: bcrypt.hash(req.body.password, 10),
+            email_id: req.body.email_id,
+            phone_number: req.body.phone_number,
+            first_name: req.body.first_name,
+            last_name: req.body.last_name,
+            gender: req.body.gender,
+            dob: req.body.dob,
+            address: req.body.address
+        });
+        user.save().then(user => {
             res.status(200).json(user);
+        }).catch(err => {
+            handleError(res, err.message, 'Failed to save new User');
         });
     });
 });
