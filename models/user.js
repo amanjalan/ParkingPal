@@ -14,7 +14,7 @@ let userSchema = new Schema({
     address: String,
     vehicles: [
         {
-            vehicle_id: number,
+            vehicle_id: Number,
             type: String,
             color: String,
             number: String,

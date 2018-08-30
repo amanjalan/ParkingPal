@@ -54,10 +54,10 @@ connection.once('open', () => {
             if (err)
                 handleError(res, err.message, 'Failed to get user');
             else {
-                bcrypt.compare(req.body.password, user.password_hash, (err, res) => {
+                bcrypt.compare(req.body.password, user.password_hash, (err, result) => {
                     if (err)
-                        handleError(res, err.message, 'Passwords dont match');
-                    else
+                        handleError(res, err.message, 'Invalid Password');
+                    else if(result==true)
                         res.status(200).json(user);
                 });
             }
@@ -66,21 +66,32 @@ connection.once('open', () => {
 
     // SignUp with new User 
     app.post('/signup', (req, res) => {
-        let user = new User({
-            username: req.body.username,
-            password_hash: bcrypt.hash(req.body.password, 10),
-            email_id: req.body.email_id,
-            phone_number: req.body.phone_number,
-            first_name: req.body.first_name,
-            last_name: req.body.last_name,
-            gender: req.body.gender,
-            dob: req.body.dob,
-            address: req.body.address
-        });
-        user.save().then(user => {
-            res.status(200).json(user);
-        }).catch(err => {
-            handleError(res, err.message, 'Failed to save new User');
+        console.log('In Signup');
+        const pass = bcrypt.hash(req.body.password, 10, (err, result) => {
+        console.log('Finihsed bcrypt');
+            if(result==true) {
+                console.log('In result true');
+                let user = new User({
+                    username: req.body.username,
+                    password_hash: pass,
+                    email_id: req.body.email_id,
+                    phone_number: req.body.phone_number,
+                    first_name: req.body.first_name,
+                    last_name: req.body.last_name,
+                    gender: req.body.gender,
+                    dob: req.body.dob,
+                    address: req.body.address
+                });
+                user.save().then(user => {
+                    res.status(200).json(user);
+                }).catch(err => {
+                    handleError(res, err.message, 'Failed to save new User');
+                });
+            }
+            else {
+                console.log('In result false');
+                res.status(400);
+            }
         });
     });
 });
