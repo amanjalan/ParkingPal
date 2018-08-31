@@ -23,6 +23,7 @@ const connection = mongoose.connection;
 connection.once('open', () => {
     console.log('Mongo Connection Successful');
 
+
     const server = app.listen(process.env.port || 3000, () => {
         const port = server.address().port;
         console.log("App Now Running on port " + port);
