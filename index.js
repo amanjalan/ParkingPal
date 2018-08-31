@@ -50,13 +50,14 @@ connection.once('open', () => {
 
     // Login Credentials Check
     app.post('/login', (req, res)=>{
-        User.find({username: req.body.username}, (err, user) => {
+        User.findOne({username: req.body.username}, (err, user) => {
             if (err)
-                handleError(res, err.message, 'Failed to get user');
+                handleError(res, err.message, 'No User Found');
             else {
-                bcrypt.compare(req.body.password, user.password_hash, (err, result) => {
-                    if (err)
-                        handleError(res, err.message, 'Invalid Password');
+                bcrypt.compare(req.body.password, user.password_hash, (error, result) => {
+                    if (error) {
+                        handleError(res, error.message, 'Invalid Password');
+                    }
                     else if(result==true)
                         res.status(200).json(user);
                 });
@@ -66,32 +67,31 @@ connection.once('open', () => {
 
     // SignUp with new User 
     app.post('/signup', (req, res) => {
-        console.log('In Signup');
-        const pass = bcrypt.hash(req.body.password, 10, (err, result) => {
-        console.log('Finihsed bcrypt');
-            if(result==true) {
-                console.log('In result true');
+        bcrypt.hash(req.body.password, 10, function(err, hash) {
+            if(!err) {
                 let user = new User({
                     username: req.body.username,
-                    password_hash: pass,
+                    password_hash: hash,
                     email_id: req.body.email_id,
                     phone_number: req.body.phone_number,
                     first_name: req.body.first_name,
                     last_name: req.body.last_name,
                     gender: req.body.gender,
-                    dob: req.body.dob,
+                    // TODO: Change date format and make it universal. it takes one less day right now
+                    dob: new Date(req.body.dob),
                     address: req.body.address
                 });
                 user.save().then(user => {
                     res.status(200).json(user);
-                }).catch(err => {
-                    handleError(res, err.message, 'Failed to save new User');
+                }).catch(error => {
+                    handleError(res, error.message, 'Failed to save new User');
                 });
             }
             else {
-                console.log('In result false');
                 res.status(400);
             }
         });
     });
+
+
 });
