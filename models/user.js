@@ -12,20 +12,17 @@ let userSchema = new Schema({
     gender: String,
     dob: Date,
     address: String,
-    vehicles: [
-        {
-            vehicle_id: Number,
-            type: String,
-            color: String,
-            number: String,
-            make: String,
-            model: String,
-            currently_parked: {
-                type: Boolean,
-                default: false
-            }
+    vehicles: [{
+        vehicle_type: String,
+        color: String,
+        vehicle_number: String,
+        make: String,
+        model: String,
+        currently_parked: {
+            type: Boolean,
+            default: false
         }
-    ]
+    }]
 });
 
 module.exports = mongoose.model('User', userSchema);

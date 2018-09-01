@@ -54,7 +54,7 @@ connection.once('open', () => {
         User.findOne({username: req.body.username}, (err, user) => {
             if (err)
                 handleError(res, err.message, 'No User Found');
-            else {
+            else if(user!=null) {
                 bcrypt.compare(req.body.password, user.password_hash, (error, result) => {
                     if (error) {
                         handleError(res, error.message, 'Invalid Password');
@@ -63,6 +63,7 @@ connection.once('open', () => {
                         res.status(200).json(user);
                 });
             }
+            else res.sendStatus(400);
         });
     });
 
@@ -92,5 +93,55 @@ connection.once('open', () => {
                 res.status(400);
             }
         });
+    });
+
+    app.delete('/deleteUser', (req, res) => {
+        User.findOne({username: req.body.username}, (err, user) => {
+            if (err)
+                handleError(res, err.message, 'No User Found');
+            else {
+                bcrypt.compare(req.body.password, user.password_hash, (error, result) => {
+                    if (error) {
+                        handleError(res, error.message, 'Invalid Password');
+                    }
+                    else if(result==true) {
+                        User.deleteOne({username: req.body.username}, (err => {
+                            if (err)
+                                console.log(err);
+                            else {
+                                console.log('User Removed');
+                                res.sendStatus(200);
+                            }
+                        }));
+                    }
+                });
+            }
+        });
+    });
+
+    app.put('/addNewVehicle', (req, res) => {
+        let vehicle = {
+            type: req.body.type,
+            color: req.body.color,
+            number: req.body.number,
+            make: req.body.make,
+            model: req.body.model
+        };
+        User.findOneAndUpdate(
+            {username: req.body.username},
+            {
+                $push: {
+                    vehicles: vehicle
+                }
+            },
+            (err, result) => {
+                if (err)
+                    handleError(res, err.message, 'Failed to add new vehicle.');
+                else {
+                    res.json(result);
+                    console.log(result);
+                }
+            }
+        );
     });
 });
