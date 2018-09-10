@@ -123,7 +123,7 @@ connection.once('open', () => {
         let vehicle = {
             type: req.body.type,
             color: req.body.color,
-            number: req.body.number,
+            vehicle_number: req.body.number,
             make: req.body.make,
             model: req.body.model
         };
@@ -138,7 +138,7 @@ connection.once('open', () => {
                 if (err)
                     handleError(res, err.message, 'Failed to add new vehicle.');
                 else {
-                    res.json(result);
+                    res.status(200).json(result);
                     console.log(result);
                 }
             }

@@ -11,7 +11,6 @@ let userSchema = new Schema({
     last_name: String,
     gender: String,
     dob: Date,
-    address: String,
     vehicles: [{
         vehicle_type: String,
         color: String,
